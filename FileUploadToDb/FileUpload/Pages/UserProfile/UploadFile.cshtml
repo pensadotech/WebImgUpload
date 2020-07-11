@@ -1,0 +1,109 @@
+﻿@page
+@model FileUpload.Pages.UserProfile.UploadFileModel
+@{
+    ViewData["Title"] = "UploadFile";
+}
+
+<h1>Upload File into a local folder</h1>
+
+<div class="card">
+    <form method="post" enctype="multipart/form-data">
+
+        @* The id is added to the page to be passed during teh POST operation *@
+        @* to indetify what entity is been modified.  This must be hidden. *@
+        <input type="hidden" asp-for="@Model.empProfileModel.Id" />
+
+        <div class="cardimg ">
+            @*<img class="card-img-top cardimgHdr" src="https://via.placeholder.com/100" alt="Card image cap">*@
+            <img id="output"
+                 class="card-img-top cardimgHdr"
+                 src="~/images/@Model.empProfileModel.ProfileImageFilename"
+                 alt="Card image cap">
+        </div>
+
+        @* name *@
+        <div class="form-group ">
+            <label asp-for="@Model.empProfileModel.EmployeeName"></label>
+            <input asp-for="@Model.empProfileModel.EmployeeName" class="form-control" />
+        </div>
+
+        @* Image *@
+        <div class="form-group">
+            <label asp-for="@Model.empProfileModel.ProfileImage"></label>
+            <input type="file" 
+                   accept=".jpg, .jpeg, .png" 
+                   id="file-selector" asp-for="empProfileModel.ProfileImage" 
+                   class="form-control" />
+            <p id="status"></p>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-page="../Index" class="btn btn-primary">Cancel</a>
+
+        @*<input type="submit" />*@
+
+    </form>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+        // This script helps collecting the file from the input tag
+
+        // Get pointer to elements in the DOM 
+        // Status below input tag
+        const status = document.getElementById('status');
+        // Image inside teh card
+        const output = document.getElementById('output');
+
+        // IF there is a file availabe and the reader is also available
+        if (window.FileList && window.File && window.FileReader) {
+
+            // Get the INPUT element named as "fileSelector" as teh INPUT tag changes
+            document.getElementById('file-selector').addEventListener('change', event => {
+
+                console.log("output:", output)
+
+                output.src = '';
+                status.textContent = '';
+
+                // Get the local files structure
+                const file = event.target.files[0];
+
+                console.log("File:", file)
+
+                // If not a file type, raise error
+                if (!file.type) {
+                    status.textContent =
+                        'Error: The File.type property does not appear to be supported on this browser.';
+
+                    return;
+                }
+
+                // If teh file is not an image, raise error
+                if (!file.type.match('image.*')) {
+                    status.textContent = 'Error: The selected file does not appear to be an image.'
+                    return;
+                }
+
+                // Instantiate a file reader
+                const reader = new FileReader();
+
+                // upon load event, get the file name
+                reader.addEventListener('load', event => {
+                    output.src = event.target.result;
+                });
+
+                // Load file in memory
+                reader.readAsDataURL(file);
+            });
+        }
+
+    </script>
+
+}
+
+
+
